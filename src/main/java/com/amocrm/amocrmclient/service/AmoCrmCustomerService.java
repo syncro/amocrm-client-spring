@@ -7,6 +7,7 @@ import com.amocrm.amocrmclient.entity.CustomFieldValue;
 import com.amocrm.amocrmclient.entity.account.AccountsDataResponse;
 import com.amocrm.amocrmclient.entity.account.CustomFieldSettings;
 
+import com.amocrm.amocrmclient.entity.customer.ListCustomersResponse;
 import com.amocrm.amocrmclient.entity.customer.SetCustomer;
 import com.amocrm.amocrmclient.entity.customer.SetCustomerAdd;
 import com.amocrm.amocrmclient.entity.customer.SetCustomerRequest;
@@ -46,7 +47,10 @@ public class AmoCrmCustomerService {
 
     AmoCrmAccountService amoCrmAccountService;
 
-    @Inject public AmoCrmCustomerService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService) {
+    AmoCrmContactService amoCrmContactService;
+
+    @Inject public AmoCrmCustomerService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService,
+                                         AmoCrmContactService amoCrmContactService) {
         this.authService = authService;
         this.amoCrmAccountService = amoCrmAccountService;
     }
@@ -65,7 +69,7 @@ public class AmoCrmCustomerService {
         return setCustomer;
     }
 
-    public SetCustomer setCustomerCustomFields(SetCustomer setCustomer, Map<String, String> projectSettings, Map<String, String> fieldValues) {
+    public SetCustomer setCustomFields(SetCustomer setCustomer, Map<String, String> projectSettings, Map<String, String> fieldValues) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -109,6 +113,37 @@ public class AmoCrmCustomerService {
         return null;
     }
 
+    public Response<ListCustomersResponse> list(Map<String, String> projectSettings) {
+
+        OkHttpClient httpClient = getOkHttpClient();
+
+        Call<AuthResponse> authResponse = authService.auth(httpClient, projectSettings.get("amoCrmHost"),
+                projectSettings.get("amoCrmUser"),  projectSettings.get("amoCrmPassword"));
+
+        Response response = null;
+        try {
+            response = authResponse.execute();
+            if (response.isSuccessful()) {
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(projectSettings.get("amoCrmHost"))
+                        .client(httpClient)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .build();
+
+                ICustomerAPI customerAPI = retrofit.create(ICustomerAPI.class);
+
+                return customerAPI.list().execute();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error placing the lead", e);
+        }
+        return null;
+    }
+
     public Response<SetCustomerResponse> setCustomer(SetCustomer setCustomer, Map<String, String> projectSettings) {
 
         OkHttpClient httpClient = getOkHttpClient();
@@ -139,6 +174,8 @@ public class AmoCrmCustomerService {
         }
         return null;
     }
+
+
 
     private OkHttpClient getOkHttpClient() {
 

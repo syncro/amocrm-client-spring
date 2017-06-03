@@ -6,7 +6,9 @@ import com.amocrm.amocrmclient.entity.CustomField;
 import com.amocrm.amocrmclient.entity.CustomFieldValue;
 import com.amocrm.amocrmclient.entity.account.AccountsDataResponse;
 import com.amocrm.amocrmclient.entity.account.CustomFieldSettings;
-import com.amocrm.amocrmclient.entity.contact.AddContactResponse;
+import com.amocrm.amocrmclient.entity.contact.ContactLinksResponse;
+import com.amocrm.amocrmclient.entity.contact.ListContactsResponse;
+import com.amocrm.amocrmclient.entity.contact.SetContactResponse;
 import com.amocrm.amocrmclient.entity.contact.SetContact;
 import com.amocrm.amocrmclient.entity.contact.SetContactAdd;
 import com.amocrm.amocrmclient.entity.contact.SetContactRequest;
@@ -43,6 +45,7 @@ public class AmoCrmContactService {
     AmoCrmAuthService authService;
 
     AmoCrmAccountService amoCrmAccountService;
+
 
     @Inject public AmoCrmContactService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService) {
         this.authService = authService;
@@ -113,7 +116,7 @@ public class AmoCrmContactService {
         return null;
     }
 
-    public Response<AddContactResponse> setContact(SetContact setContact, Map<String, String> projectSettings) {
+    public Response<SetContactResponse> setContact(SetContact setContact, Map<String, String> projectSettings) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -144,7 +147,71 @@ public class AmoCrmContactService {
         return null;
     }
 
-    private OkHttpClient getOkHttpClient() {
+
+    public Response<ListContactsResponse> list(Map<String, String> projectSettings) {
+
+        OkHttpClient httpClient = getOkHttpClient();
+
+        Call<AuthResponse> authResponse = authService.auth(httpClient, projectSettings.get("amoCrmHost"),
+                projectSettings.get("amoCrmUser"),  projectSettings.get("amoCrmPassword"));
+
+        Response response = null;
+        try {
+            response = authResponse.execute();
+            if (response.isSuccessful()) {
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(projectSettings.get("amoCrmHost"))
+                        .client(httpClient)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .build();
+
+                IContactAPI contactAPI = retrofit.create(IContactAPI.class);
+
+                return contactAPI.list().execute();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching contact list", e);
+        }
+        return null;
+    }
+
+
+    public Response<ContactLinksResponse> links(Map<String, String> projectSettings) {
+
+        OkHttpClient httpClient = getOkHttpClient();
+
+        Call<AuthResponse> authResponse = authService.auth(httpClient, projectSettings.get("amoCrmHost"),
+                projectSettings.get("amoCrmUser"),  projectSettings.get("amoCrmPassword"));
+
+        Response response = null;
+        try {
+            response = authResponse.execute();
+            if (response.isSuccessful()) {
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(projectSettings.get("amoCrmHost"))
+                        .client(httpClient)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .build();
+
+                IContactAPI contactAPI = retrofit.create(IContactAPI.class);
+
+                return contactAPI.links().execute();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching contact links list", e);
+        }
+        return null;
+    }
+
+    public OkHttpClient getOkHttpClient() {
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
