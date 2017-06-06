@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+jar {
+    baseName = 'amocrm-client-spring'
+    version =  '0.0.1'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("com.amocrm:amocrm-client:0.0.1")
+    compile("org.springframework:spring-context:4.3.2.RELEASE")
+    compile("com.squareup.retrofit2:retrofit:2.2.0")
+    compile("com.squareup.retrofit2:adapter-rxjava2:2.2.0")
+    compile("com.squareup.retrofit2:converter-gson:2.2.0")
+    compile("com.google.code.gson:gson:2.2.0")
+    compile("com.squareup.okhttp3:logging-interceptor:3.6.0")
+    compile("com.squareup.okhttp3:okhttp-urlconnection:3.6.0")
+    compile("org.slf4j:slf4j-api:1.7.21")
+    compile("javax.inject:javax.inject:1")
+    testCompile('org.springframework:spring-test:4.3.2.RELEASE')
+    testCompile('junit:junit:4.12')
+}
