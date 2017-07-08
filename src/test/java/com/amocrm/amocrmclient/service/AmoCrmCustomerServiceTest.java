@@ -9,9 +9,11 @@ import com.amocrm.amocrmclient.entity.customer.SetCustomerResponse;
 import com.amocrm.amocrmclient.entity.customer.SetCustomerResponseCustomersSectionsDeleteCustomer;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ import retrofit2.Response;
 import static org.junit.Assert.assertEquals;
 
 
-//@RunWith(SpringRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "classpath:serviceContext-test.xml")
 public class AmoCrmCustomerServiceTest {
 

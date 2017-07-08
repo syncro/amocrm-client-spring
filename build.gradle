@@ -1,9 +1,36 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
     }
+}
+
+
+ext {
+    bintrayRepo = 'amocrm-client'
+    bintrayName = 'amocrm-client-spring'
+
+    publishedGroupId = 'com.amocrm'
+    libraryName = 'amocrm-client-spring'
+    artifact = 'amocrm-client-spring'
+
+    libraryDescription = 'AmoCRM API client service code for spring framework based on Retrofit2 http library'
+
+    siteUrl = 'https://github.com/syncro/amocrm-client-spring'
+    gitUrl = 'https://github.com/syncro/amocrm-client-spring.git'
+
+    libraryVersion = '0.0.1'
+
+    developerId = 'syncro'
+    developerName = 'Aleksey Oblozhko'
+    developerEmail = 'oblozhko@gmail.com'
+
+    licenseName = 'GNU Lesser General Public License, version 3'
+    licenseUrl = 'https://opensource.org/licenses/LGPL-3.0'
+    allLicenses = ["LGPL-3.0"]
 }
 
 apply plugin: 'java'
@@ -36,4 +63,79 @@ dependencies {
     compile("javax.inject:javax.inject:1")
     testCompile('org.springframework:spring-test:4.3.2.RELEASE')
     testCompile('junit:junit:4.12')
+}
+
+apply plugin: 'maven'
+
+group = 'com.amocrm'
+
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.groupId = group
+        pom.artifactId = 'amocrm-client'
+        pom.version = '0.0.1'
+        // Add other pom properties here if you want (developer details / licenses)
+        //repository(url: "file:///someLocation/")
+    }
+}
+
+
+apply plugin: 'com.jfrog.bintray'
+
+version = libraryVersion
+
+if (project.hasProperty("android")) { // Android libraries
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+} else { // Java libraries
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = bintrayRepo
+        name = bintrayName
+        userOrg = 'syncro'
+        desc = libraryDescription
+        websiteUrl = siteUrl
+        vcsUrl = 'https://github.com/syncro/amocrm-client-spring'
+        licenses = ["LGPL-3.0"]
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+            gpg {
+                // optional GPG encryption. Default is false.
+                sign = false
+                //passphrase = properties.getProperty("bintray.gpg.password")
+            }
+        }
+    }
 }
