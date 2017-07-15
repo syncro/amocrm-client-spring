@@ -1,17 +1,9 @@
 package com.amocrm.amocrmclient.service;
 
-import com.amocrm.amocrmclient.entity.contact.AddContactResponseContactsAdd;
-import com.amocrm.amocrmclient.entity.contact.ContactLinksResponse;
-import com.amocrm.amocrmclient.entity.contact.ListContactsResponse;
-import com.amocrm.amocrmclient.entity.contact.SetContact;
-import com.amocrm.amocrmclient.entity.contact.SetContactResponse;
-import com.amocrm.amocrmclient.entity.customer.ListCustomersResponse;
-import com.amocrm.amocrmclient.entity.customer.ResponseCustomersCustomer;
-import com.amocrm.amocrmclient.entity.customer.SetCustomer;
-import com.amocrm.amocrmclient.entity.customer.SetCustomerRequest;
-import com.amocrm.amocrmclient.entity.customer.SetCustomerRequestCustomers;
-import com.amocrm.amocrmclient.entity.customer.SetCustomerResponse;
-import com.amocrm.amocrmclient.entity.customer.SetCustomerResponseCustomersSectionsDeleteCustomer;
+import com.amocrm.amocrmclient.entity.contact.set.SCResponseAdd;
+import com.amocrm.amocrmclient.entity.contact.links.CLResponseData;
+import com.amocrm.amocrmclient.entity.contact.set.SCParam;
+import com.amocrm.amocrmclient.entity.contact.set.SCResponseData;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,13 +81,13 @@ public class AmoCrmContactServiceTest {
         projectSettings.put("amoCrmUser", amoCrmUser);
         projectSettings.put("amoCrmPassword", amoCrmPassword);
         OkHttpClient httpClient = amoCrmContactService.getOkHttpClient();
-        SetContact setContact = amoCrmContactService.createContact("John Doe");
-        Response<SetContactResponse> setContactResponse = amoCrmContactService.setContact(setContact, projectSettings);
+        SCParam setContact = amoCrmContactService.createContact("John Doe");
+        Response<SCResponseData> setContactResponse = amoCrmContactService.setContact(setContact, projectSettings);
         assertEquals(setContactResponse.body().response.contacts.add.size(), 1);
 
-        AddContactResponseContactsAdd contact = setContactResponse.body().response.contacts.add.get(0);
+        SCResponseAdd contact = setContactResponse.body().response.contacts.add.get(0);
 
-        Response<ContactLinksResponse> listLinksResponse = amoCrmContactService.links(projectSettings);
+        Response<CLResponseData> listLinksResponse = amoCrmContactService.links(projectSettings);
         assertNotEquals(listLinksResponse.body().response.links.size(), 0);
 
     }

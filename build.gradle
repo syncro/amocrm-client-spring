@@ -22,7 +22,7 @@ ext {
     siteUrl = 'https://github.com/syncro/amocrm-client-spring'
     gitUrl = 'https://github.com/syncro/amocrm-client-spring.git'
 
-    libraryVersion = '0.0.1'
+    libraryVersion = '0.0.2'
 
     developerId = 'syncro'
     developerName = 'Aleksey Oblozhko'
@@ -39,19 +39,20 @@ apply plugin: 'idea'
 
 jar {
     baseName = 'amocrm-client-spring'
-    version =  '0.0.1'
+    version =  '0.0.2'
 }
 
 repositories {
     mavenCentral()
     jcenter()
+    mavenLocal()
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile("com.amocrm:amocrm-client:0.0.1")
+    compile("com.amocrm:amocrm-client:0.0.2")
     compile("org.springframework:spring-context:4.3.2.RELEASE")
     compile("com.squareup.retrofit2:retrofit:2.2.0")
     compile("com.squareup.retrofit2:adapter-rxjava2:2.2.0")
@@ -73,7 +74,7 @@ uploadArchives {
     repositories.mavenDeployer {
         pom.groupId = group
         pom.artifactId = 'amocrm-client'
-        pom.version = '0.0.1'
+        pom.version = '0.0.2'
         // Add other pom properties here if you want (developer details / licenses)
         //repository(url: "file:///someLocation/")
     }

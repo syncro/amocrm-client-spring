@@ -1,6 +1,6 @@
 package com.amocrm.amocrmclient.service;
 
-import com.amocrm.amocrmclient.entity.account.AccountsDataResponse;
+import com.amocrm.amocrmclient.entity.account.current.ACData;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ public class AmoCrmAccountServiceTest {
         projectSettings.put("amoCrmUser", amoCrmUser);
         projectSettings.put("amoCrmPassword", amoCrmPassword);
         OkHttpClient httpClient = amoCrmAccountService.getOkHttpClient();
-        Response<AccountsDataResponse> response = amoCrmAccountService.data(httpClient, projectSettings);
+        Response<ACData> response = amoCrmAccountService.data(httpClient, projectSettings);
         assertEquals(amoCrmHost, "https://" + response.body().response.account.name + ".amocrm.com/");
     }
 

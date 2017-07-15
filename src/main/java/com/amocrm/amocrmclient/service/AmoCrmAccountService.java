@@ -2,7 +2,7 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.entity.AuthResponse;
-import com.amocrm.amocrmclient.entity.account.AccountsDataResponse;
+import com.amocrm.amocrmclient.entity.account.current.ACData;
 import com.amocrm.amocrmclient.iface.IAccountAPI;
 
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AmoCrmAccountService {
 
 
-    private static final Logger logger = LoggerFactory.getLogger(AmoCrmLeadService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AmoCrmAccountService.class);
 
     AmoCrmAuthService authService;
 
@@ -37,7 +37,7 @@ public class AmoCrmAccountService {
         this.authService = authService;
     }
 
-    public Response<AccountsDataResponse> data(OkHttpClient httpClient, Map<String, String> projectSettings) {
+    public Response<ACData> data(OkHttpClient httpClient, Map<String, String> projectSettings) {
 
         Call<AuthResponse> authResponse = authService.auth(httpClient, projectSettings.get("amoCrmHost"),
                 projectSettings.get("amoCrmUser"),  projectSettings.get("amoCrmPassword"));

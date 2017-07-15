@@ -1,12 +1,13 @@
 package com.amocrm.amocrmclient.service;
 
 
-import com.amocrm.amocrmclient.entity.lead.AddLead;
-import com.amocrm.amocrmclient.entity.lead.AddLeadResponse;
-import com.amocrm.amocrmclient.entity.lead.AddLeads;
+import com.amocrm.amocrmclient.entity.lead.set.SLAdd;
+import com.amocrm.amocrmclient.entity.lead.set.SLResponseData;
+import com.amocrm.amocrmclient.entity.lead.set.SLLeads;
 import com.amocrm.amocrmclient.entity.AuthResponse;
-import com.amocrm.amocrmclient.entity.lead.SetLead;
-import com.amocrm.amocrmclient.entity.lead.SetLeadRequest;
+import com.amocrm.amocrmclient.entity.lead.list.LLResponseData;
+import com.amocrm.amocrmclient.entity.lead.set.SLParam;
+import com.amocrm.amocrmclient.entity.lead.set.SLRequest;
 import com.amocrm.amocrmclient.iface.ILeadAPI;
 
 import org.slf4j.Logger;
@@ -14,16 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.util.ArrayList;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -32,29 +29,27 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 
 @Component
-public class AmoCrmLeadService {
+public class AmoCrmLeadService extends AmoCrmService {
 
     private static final Logger logger = LoggerFactory.getLogger(AmoCrmLeadService.class);
 
-    AmoCrmAuthService authService;
-
-    @Inject public AmoCrmLeadService(AmoCrmAuthService authService) {
-        this.authService = authService;
+    @Inject public AmoCrmLeadService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService) {
+        super(authService, amoCrmAccountService);
     }
 
-    public SetLead createLead(String name, int price) {
-        SetLead setLead = new SetLead();
-        AddLead addLead = new AddLead();
+    public SLParam createLead(String name, int price) {
+        SLParam setLead = new SLParam();
+        SLAdd addLead = new SLAdd();
         addLead.name = name;
         addLead.price = new BigDecimal(price);
-        setLead.request = new SetLeadRequest();
-        setLead.request.leads = new AddLeads();
+        setLead.request = new SLRequest();
+        setLead.request.leads = new SLLeads();
         setLead.request.leads.add = new ArrayList<>();
         setLead.request.leads.add.add(addLead);
         return setLead;
     }
 
-    public Response<AddLeadResponse> setLead(@Body SetLead setLead, Map<String, String> projectSettings) {
+    public Response<SLResponseData> setLead(@Body SLParam setLead, Map<String, String> projectSettings) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -76,6 +71,7 @@ public class AmoCrmLeadService {
                 ILeadAPI leadAPI = retrofit.create(ILeadAPI.class);
 
                 return leadAPI.setLead(setLead).execute();
+
             } else {
                 return null;
             }
@@ -85,20 +81,59 @@ public class AmoCrmLeadService {
         return null;
     }
 
-    private OkHttpClient getOkHttpClient() {
+    public Response<LLResponseData> list(Map<String, String> projectSettings, String query, int limitRows, int limitOffset, Long id, String responsibleUserId) {
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        OkHttpClient httpClient = getOkHttpClient();
 
-        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-        httpClientBuilder.addInterceptor(logging);
+        Call<AuthResponse> authResponse = authService.auth(httpClient, projectSettings.get("amoCrmHost"),
+                projectSettings.get("amoCrmUser"),  projectSettings.get("amoCrmPassword"));
 
-        CookieHandler cookieHandler = new CookieManager();
-        JavaNetCookieJar jncj = new JavaNetCookieJar(cookieHandler);
+        Response response = null;
+        try {
+            response = authResponse.execute();
+            if (response.isSuccessful()) {
 
-        httpClientBuilder.cookieJar(jncj);
-        httpClientBuilder.build();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(projectSettings.get("amoCrmHost"))
+                        .client(httpClient)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .build();
 
-        return httpClientBuilder.build();
+                ILeadAPI leadAPI = retrofit.create(ILeadAPI.class);
+
+                if (id != null) {
+                    return leadAPI.list(id).execute();
+                } else if (responsibleUserId != null) {
+                    return leadAPI.listByResponsibleUserId(responsibleUserId).execute();
+                } else {
+                    if (limitRows >= 0 && limitOffset >= 0 && query != null) {
+                        return leadAPI.list(query, limitRows, limitOffset).execute();
+                    } else if (query == null && limitRows >= 0 && limitOffset >= 0) {
+                        return leadAPI.list(limitRows, limitOffset).execute();
+                    } else {
+                        return leadAPI.list().execute();
+                    }
+                }
+
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching contact list", e);
+        }
+
+        return null;
     }
+
+    public Response<LLResponseData> list(Map<String, String> projectSettings, String query) {
+
+        return this.list(projectSettings, query, -1, -1, null, null);
+    }
+
+    public Response<LLResponseData> list(Map<String, String> projectSettings) {
+
+        return this.list(projectSettings, null, -1, -1, null, null);
+    }
+
 }

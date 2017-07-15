@@ -6,16 +6,13 @@ import com.amocrm.amocrmclient.entity.CustomField;
 import com.amocrm.amocrmclient.entity.CustomFieldValue;
 import com.amocrm.amocrmclient.entity.account.current.ACData;
 import com.amocrm.amocrmclient.entity.account.CustomFieldSettings;
-
-import com.amocrm.amocrmclient.entity.customer.list.LCFilter;
-import com.amocrm.amocrmclient.entity.customer.list.LCResponseData;
-import com.amocrm.amocrmclient.entity.customer.set.SCParam;
-import com.amocrm.amocrmclient.entity.customer.set.SCAdd;
-import com.amocrm.amocrmclient.entity.customer.set.SCRequest;
-import com.amocrm.amocrmclient.entity.customer.set.SCRequestCustomers;
-import com.amocrm.amocrmclient.entity.customer.set.SCResponseData;
-
-import com.amocrm.amocrmclient.iface.ICustomerAPI;
+import com.amocrm.amocrmclient.entity.company.list.LCResponseData;
+import com.amocrm.amocrmclient.entity.company.set.SCParam;
+import com.amocrm.amocrmclient.entity.company.set.SCRequest;
+import com.amocrm.amocrmclient.entity.company.set.SCRequestAdd;
+import com.amocrm.amocrmclient.entity.company.set.SCRequestContacts;
+import com.amocrm.amocrmclient.entity.company.set.SCResponseData;
+import com.amocrm.amocrmclient.iface.ICompanyAPI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,28 +33,29 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Component
-public class AmoCrmCustomerService extends AmoCrmService {
+public class AmoCrmCompanyService extends AmoCrmService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AmoCrmCustomerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AmoCrmCompanyService.class);
 
-    @Inject public AmoCrmCustomerService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService) {
+    @Inject public AmoCrmCompanyService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService) {
         super(authService, amoCrmAccountService);
     }
 
-    public SCParam createCustomer(String name) {
+    public SCParam createCompany(String name) {
 
-        SCParam setCustomer = new SCParam();
-        setCustomer.request = new SCRequest();
-        setCustomer.request.customers = new SCRequestCustomers();
-        setCustomer.request.customers.add = new ArrayList<>();
-        SCAdd setCustomerAdd = new SCAdd();
-        setCustomerAdd.name = name;
-        setCustomer.request.customers.add.add(setCustomerAdd);
+        SCParam setCompany = new SCParam();
+        setCompany.request = new SCRequest();
+        setCompany.request.contacts = new SCRequestContacts();
+        setCompany.request.contacts.add = new ArrayList<>();
+        SCRequestAdd setCompanyAdd = new SCRequestAdd();
+        setCompanyAdd.name = name;
+        setCompany.request.contacts.add.add(setCompanyAdd);
 
-        return setCustomer;
+        return setCompany;
     }
 
-    public SCParam setCustomFields(SCParam setCustomer, Map<String, String> projectSettings, Map<String, String> fieldValues) {
+    public SCParam setCompanyCustomFields(SCParam setCompany, Map<String, String> projectSettings,
+                                          Map<String, String> fieldValues, Long linkedLeadId) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -74,7 +72,12 @@ public class AmoCrmCustomerService extends AmoCrmService {
                 customFieldsMap.put(customField.name, customField);
             }
 
-            setCustomer.request.customers.add.get(0).customFields = new ArrayList<>();
+            if (linkedLeadId != null) {
+                setCompany.request.contacts.add.get(0).linkedLeadsId = new ArrayList<>();
+                setCompany.request.contacts.add.get(0).linkedLeadsId.add(linkedLeadId);
+            }
+
+            setCompany.request.contacts.add.get(0).customFields = new ArrayList<>();
             for (String fieldName : fieldValues.keySet()) {
                 CustomFieldSettings customFieldSettings = customFieldsMap.get(fieldName);
                 if ("Y".equals(customFieldSettings.multiple)) {
@@ -89,19 +92,19 @@ public class AmoCrmCustomerService extends AmoCrmService {
                     } else if ("Email".equals(fieldName)) {
                         fieldValue.enumer = "WORK";
                     }
-                    setCustomer.request.customers.add.get(0).customFields.add(customField);
+                    setCompany.request.contacts.add.get(0).customFields.add(customField);
                 } else {
 
                 }
 
 
             }
-            return setCustomer;
+            return setCompany;
         }
         return null;
     }
 
-    public Response<SCResponseData> setCustomer(SCParam setCustomer, Map<String, String> projectSettings) {
+    public Response<SCResponseData> setCompany(SCParam setCompany, Map<String, String> projectSettings) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -120,9 +123,9 @@ public class AmoCrmCustomerService extends AmoCrmService {
                         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .build();
 
-                ICustomerAPI customerAPI = retrofit.create(ICustomerAPI.class);
+                ICompanyAPI companyAPI = retrofit.create(ICompanyAPI.class);
 
-                return customerAPI.setCustomer(setCustomer).execute();
+                return companyAPI.setCompany(setCompany).execute();
             } else {
                 return null;
             }
@@ -132,7 +135,7 @@ public class AmoCrmCustomerService extends AmoCrmService {
         return null;
     }
 
-    public Response<LCResponseData> list(Map<String, String> projectSettings, LCFilter filter, int limitRows, int limitOffset) {
+    public Response<LCResponseData> list(Map<String, String> projectSettings, String query, int limitRows, int limitOffset, Long id, String responsibleUserId) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -151,35 +154,40 @@ public class AmoCrmCustomerService extends AmoCrmService {
                         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .build();
 
-                ICustomerAPI customerAPI = retrofit.create(ICustomerAPI.class);
+                ICompanyAPI companyAPI = retrofit.create(ICompanyAPI.class);
 
-                if (filter != null) {
-                    if (limitRows >= 0 && limitOffset >= 0) {
-                        return customerAPI.list(filter, limitRows, limitOffset).execute();
+                if (id != null) {
+                    return companyAPI.list(id).execute();
+                } else if (responsibleUserId != null) {
+                    return companyAPI.listByResponsibleUserId(responsibleUserId).execute();
+                } else {
+                    if (limitRows >= 0 && limitOffset >= 0 && query != null) {
+                        return companyAPI.list(query, limitRows, limitOffset).execute();
+                    } else if (query == null && limitRows >= 0 && limitOffset >= 0) {
+                        return companyAPI.list(limitRows, limitOffset).execute();
+                    } else {
+                        return companyAPI.list().execute();
                     }
-                    return customerAPI.list(filter).execute();
                 }
-                if (limitRows >= 0 && limitOffset >= 0) {
-                    return customerAPI.list(limitRows, limitOffset).execute();
-                }
-                return customerAPI.list().execute();
+
             } else {
                 return null;
             }
         } catch (Exception e) {
-            logger.error("Error placing the lead", e);
+            logger.error("Error fetching contact list", e);
         }
+
         return null;
     }
 
-    public Response<LCResponseData> list(Map<String, String> projectSettings, LCFilter filter) {
+    public Response<LCResponseData> list(Map<String, String> projectSettings, String query) {
 
-        return this.list(projectSettings, filter, -1, -1);
+        return this.list(projectSettings, query, -1, -1, null, null);
     }
 
     public Response<LCResponseData> list(Map<String, String> projectSettings) {
 
-        return this.list(projectSettings, null, -1, -1);
+        return this.list(projectSettings, null, -1, -1, null, null);
     }
 
 }
