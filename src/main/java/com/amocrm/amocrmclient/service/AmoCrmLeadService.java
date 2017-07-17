@@ -38,6 +38,7 @@ public class AmoCrmLeadService extends AmoCrmService {
     }
 
     public SLParam createLead(String name, int price) {
+
         SLParam setLead = new SLParam();
         SLAdd addLead = new SLAdd();
         addLead.name = name;
@@ -46,6 +47,7 @@ public class AmoCrmLeadService extends AmoCrmService {
         setLead.request.leads = new SLLeads();
         setLead.request.leads.add = new ArrayList<>();
         setLead.request.leads.add.add(addLead);
+
         return setLead;
     }
 
@@ -81,7 +83,7 @@ public class AmoCrmLeadService extends AmoCrmService {
         return null;
     }
 
-    public Response<LLResponseData> list(Map<String, String> projectSettings, String query, int limitRows, int limitOffset, Long id, String responsibleUserId) {
+    public Response<LLResponseData> list(Map<String, String> projectSettings, String query, Long id, String responsibleUserId, String status, int limitRows, int limitOffset) {
 
         OkHttpClient httpClient = getOkHttpClient();
 
@@ -103,17 +105,45 @@ public class AmoCrmLeadService extends AmoCrmService {
                 ILeadAPI leadAPI = retrofit.create(ILeadAPI.class);
 
                 if (id != null) {
+
                     return leadAPI.list(id).execute();
+
                 } else if (responsibleUserId != null) {
+
                     return leadAPI.listByResponsibleUserId(responsibleUserId).execute();
-                } else {
-                    if (limitRows >= 0 && limitOffset >= 0 && query != null) {
+
+                } else if (query != null) {
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
                         return leadAPI.list(query, limitRows, limitOffset).execute();
-                    } else if (query == null && limitRows >= 0 && limitOffset >= 0) {
-                        return leadAPI.list(limitRows, limitOffset).execute();
-                    } else {
-                        return leadAPI.list().execute();
+                    } else if (limitRows >= 0) {
+                        return leadAPI.list(query, limitRows).execute();
                     }
+
+                    return leadAPI.list(query).execute();
+
+                } else if (responsibleUserId != null) {
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
+                        return leadAPI.listByResponsibleUserId(responsibleUserId, limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return leadAPI.listByResponsibleUserId(responsibleUserId, limitRows).execute();
+                    }
+
+                    return leadAPI.listByResponsibleUserId(responsibleUserId).execute();
+
+                } else if (status != null) {
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
+                        return leadAPI.listByStatusId(status, limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return leadAPI.listByStatusId(status, limitRows).execute();
+                    }
+
+                    return leadAPI.listByStatusId(status).execute();
+
+                } else { //
+                    return leadAPI.list().execute();
                 }
 
             } else {
@@ -128,12 +158,14 @@ public class AmoCrmLeadService extends AmoCrmService {
 
     public Response<LLResponseData> list(Map<String, String> projectSettings, String query) {
 
-        return this.list(projectSettings, query, -1, -1, null, null);
+        return this.list(projectSettings, query, null, null, null, -1, -1);
+
     }
 
     public Response<LLResponseData> list(Map<String, String> projectSettings) {
 
-        return this.list(projectSettings, null, -1, -1, null, null);
+        return this.list(projectSettings, null, null, null, null, -1, -1);
+
     }
 
 }

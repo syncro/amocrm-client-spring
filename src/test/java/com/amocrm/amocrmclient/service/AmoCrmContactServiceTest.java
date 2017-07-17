@@ -1,5 +1,6 @@
 package com.amocrm.amocrmclient.service;
 
+import com.amocrm.amocrmclient.entity.contact.set.SCResponse;
 import com.amocrm.amocrmclient.entity.contact.set.SCResponseAdd;
 import com.amocrm.amocrmclient.entity.contact.links.CLResponseData;
 import com.amocrm.amocrmclient.entity.contact.set.SCParam;
@@ -38,21 +39,18 @@ public class AmoCrmContactServiceTest {
     @Value("${amocrm.password}")
     private String amoCrmPassword;
 
-/*    @Test
+    @Test
     public void testSetAndDeleteContact() throws Exception {
-        // TODO: Test update also
         Map<String, String> projectSettings = new HashMap<>();
         projectSettings.put("amoCrmHost", amoCrmHost);
         projectSettings.put("amoCrmUser", amoCrmUser);
         projectSettings.put("amoCrmPassword", amoCrmPassword);
         OkHttpClient httpClient = amoCrmContactService.getOkHttpClient();
-        SetContact setContact = amoCrmContactService.createContact("John Doe");
-        Response<SetContactResponse> setContactResponse = amoCrmContactService.setContact(setContact, projectSettings);
+        SCParam setContact = amoCrmContactService.createContact("John Doe");
+        Response<SCResponseData> setContactResponse = amoCrmContactService.setContact(setContact, projectSettings);
         assertEquals(setContactResponse.body().response.contacts.add.size(), 1);
 
-        AddContactResponseContactsAdd contact = setContactResponse.body().response.contacts.add.get(0);
-
-    }*/
+    }
 
 /*    @Test
     public void testListContacts() throws Exception {
@@ -73,7 +71,7 @@ public class AmoCrmContactServiceTest {
 
     }*/
 
-    @Test
+    //@Test
     public void testLinks() throws Exception {
         // TODO: Test update also
         Map<String, String> projectSettings = new HashMap<>();

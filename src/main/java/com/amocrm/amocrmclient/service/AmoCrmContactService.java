@@ -159,19 +159,49 @@ public class AmoCrmContactService extends AmoCrmService {
                 IContactAPI contactAPI = retrofit.create(IContactAPI.class);
 
                 if (type != null) {
-                    return contactAPI.listByType(type).execute();
-                } else if (id != null) {
-                    return contactAPI.list(id).execute();
-                } else if (responsibleUserId != null) {
-                    return contactAPI.listByResponsibleUserId(responsibleUserId).execute();
-                } else {
-                    if (limitRows >= 0 && limitOffset >= 0 && query != null) {
-                        return contactAPI.list(query, limitRows, limitOffset).execute();
-                    } else if (query == null && limitRows >= 0 && limitOffset >= 0) {
-                        return contactAPI.list(limitRows, limitOffset).execute();
-                    } else {
-                        return contactAPI.list().execute();
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
+                        return contactAPI.listByType(type, limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return contactAPI.listByType(type, limitRows).execute();
                     }
+
+                    return contactAPI.listByType(type).execute();
+
+                } else if (id != null) {
+
+                    return contactAPI.list(id).execute();
+
+                } else if (responsibleUserId != null) {
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
+                        return contactAPI.listByResponsibleUserId(responsibleUserId, limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return contactAPI.listByResponsibleUserId(responsibleUserId, limitRows).execute();
+                    }
+
+                    return contactAPI.listByResponsibleUserId(responsibleUserId).execute();
+
+                } else if (query != null) {
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
+                        return contactAPI.list(query, limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return contactAPI.list(query, limitRows).execute();
+                    }
+
+                    return contactAPI.list().execute();
+
+                } else {
+
+                    if (limitRows >= 0 && limitOffset >= 0) {
+                        return contactAPI.list(limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return contactAPI.list(limitRows).execute();
+                    }
+
+                    return contactAPI.list().execute();
+
                 }
 
             } else {

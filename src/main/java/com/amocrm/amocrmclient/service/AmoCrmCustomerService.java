@@ -156,13 +156,21 @@ public class AmoCrmCustomerService extends AmoCrmService {
                 if (filter != null) {
                     if (limitRows >= 0 && limitOffset >= 0) {
                         return customerAPI.list(filter, limitRows, limitOffset).execute();
+                    } else if (limitRows >= 0) {
+                        return customerAPI.list(limitRows).execute();
                     }
+
                     return customerAPI.list(filter).execute();
+
                 }
                 if (limitRows >= 0 && limitOffset >= 0) {
                     return customerAPI.list(limitRows, limitOffset).execute();
+                } else if (limitRows >= 0) {
+                    return customerAPI.list(limitRows).execute();
                 }
+
                 return customerAPI.list().execute();
+
             } else {
                 return null;
             }
