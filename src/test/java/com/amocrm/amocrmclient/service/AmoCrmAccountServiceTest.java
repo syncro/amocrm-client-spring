@@ -1,28 +1,29 @@
 package com.amocrm.amocrmclient.service;
 
-import com.amocrm.amocrmclient.entity.account.current.ACData;
+import com.amocrm.amocrmclient.account.entity.current.ACData;
+import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "classpath:serviceContext-test.xml")
+@ContextHierarchy({@ContextConfiguration(classes = {
+}, initializers = ConfigFileApplicationContextInitializer.class)})
+@TestPropertySource(locations="classpath:amocrm.properties")
 public class AmoCrmAccountServiceTest {
 
-    @Autowired
-    AmoCrmAccountService amoCrmAccountService;
+    private AmoCrmAccountService amoCrmAccountService;
 
     @Value("${amocrm.host}")
     private String amoCrmHost;
@@ -33,14 +34,15 @@ public class AmoCrmAccountServiceTest {
     @Value("${amocrm.password}")
     private String amoCrmPassword;
 
+    @Autowired
+    void setAmoCrmAccountService() {
+        AmoCrmClientConfig config = new AmoCrmClientConfig(amoCrmHost, amoCrmUser, amoCrmPassword);
+        amoCrmAccountService = new AmoCrmAccountService(config);
+    }
+
     @Test
     public void testData() throws Exception {
-        Map<String, String> projectSettings = new HashMap<>();
-        projectSettings.put("amoCrmHost", amoCrmHost);
-        projectSettings.put("amoCrmUser", amoCrmUser);
-        projectSettings.put("amoCrmPassword", amoCrmPassword);
-        OkHttpClient httpClient = amoCrmAccountService.getOkHttpClient();
-        Response<ACData> response = amoCrmAccountService.data(httpClient, projectSettings);
+        Response<ACData> response = amoCrmAccountService.data();
         assertEquals(amoCrmHost, "https://" + response.body().response.account.name + ".amocrm.com/");
     }
 

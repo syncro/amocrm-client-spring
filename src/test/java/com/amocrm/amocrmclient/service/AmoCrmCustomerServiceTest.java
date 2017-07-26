@@ -1,25 +1,25 @@
 package com.amocrm.amocrmclient.service;
 
-import com.amocrm.amocrmclient.entity.customer.list.LCResponseData;
-import com.amocrm.amocrmclient.entity.customer.set.SCResponseAddCustomer;
-import com.amocrm.amocrmclient.entity.customer.set.SCParam;
-import com.amocrm.amocrmclient.entity.customer.set.SCRequest;
-import com.amocrm.amocrmclient.entity.customer.set.SCRequestCustomers;
-import com.amocrm.amocrmclient.entity.customer.set.SCResponseData;
-import com.amocrm.amocrmclient.entity.customer.set.SCResponseDeleteCustomer;
+import com.amocrm.amocrmclient.customer.entity.list.LCResponseData;
+import com.amocrm.amocrmclient.customer.entity.set.SCResponseAddCustomer;
+import com.amocrm.amocrmclient.customer.entity.set.SCParam;
+import com.amocrm.amocrmclient.customer.entity.set.SCRequest;
+import com.amocrm.amocrmclient.customer.entity.set.SCRequestCustomers;
+import com.amocrm.amocrmclient.customer.entity.set.SCResponseData;
+import com.amocrm.amocrmclient.customer.entity.set.SCResponseDeleteCustomer;
+import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
 import static org.junit.Assert.assertEquals;
@@ -27,14 +27,12 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "classpath:serviceContext-test.xml")
+@ContextHierarchy({@ContextConfiguration(classes = {
+}, initializers = ConfigFileApplicationContextInitializer.class)})
+@TestPropertySource(locations="classpath:amocrm.properties")
 public class AmoCrmCustomerServiceTest {
 
-    @Autowired
-    AmoCrmContactService amoCrmAccountService;
-
-    @Autowired
-    AmoCrmCustomerService amoCrmCustomerService;
+    private AmoCrmCustomerService amoCrmCustomerService;
 
     @Value("${amocrm.host}")
     private String amoCrmHost;
@@ -45,19 +43,22 @@ public class AmoCrmCustomerServiceTest {
     @Value("${amocrm.password}")
     private String amoCrmPassword;
 
+
+    @Autowired
+    void setAmoCrmCustomerService() {
+        AmoCrmClientConfig config = new AmoCrmClientConfig(amoCrmHost, amoCrmUser, amoCrmPassword);
+        amoCrmCustomerService = new AmoCrmCustomerService(config);
+    }
+
     @Test
     public void testCrateAndListCustomers() throws Exception {
-        Map<String, String> projectSettings = new HashMap<>();
-        projectSettings.put("amoCrmHost", amoCrmHost);
-        projectSettings.put("amoCrmUser", amoCrmUser);
-        projectSettings.put("amoCrmPassword", amoCrmPassword);
 
         SCParam setCustomer = amoCrmCustomerService.createCustomer("John Doe");
 
-        Response<SCResponseData> setCustomerResponse = amoCrmCustomerService.setCustomer(setCustomer, projectSettings);
+        Response<SCResponseData> setCustomerResponse = amoCrmCustomerService.setCustomer(setCustomer);
         assertEquals(setCustomerResponse.body().response.customers.add.customers.size(), 1);
 
-        Response<LCResponseData> listCustomersResponse = amoCrmCustomerService.list(projectSettings);
+        Response<LCResponseData> listCustomersResponse = amoCrmCustomerService.list();
         assertTrue(listCustomersResponse.body().response.customers.size() > 0);
 
     }
@@ -66,13 +67,8 @@ public class AmoCrmCustomerServiceTest {
     public void testSetAndDeleteCustomer() throws Exception {
         // delete is not working due to some 282 error, guess this is: functional disabled by administrator
 
-        Map<String, String> projectSettings = new HashMap<>();
-        projectSettings.put("amoCrmHost", amoCrmHost);
-        projectSettings.put("amoCrmUser", amoCrmUser);
-        projectSettings.put("amoCrmPassword", amoCrmPassword);
-        OkHttpClient httpClient = amoCrmAccountService.getOkHttpClient();
         SCParam setCustomer = amoCrmCustomerService.createCustomer("John Doe");
-        Response<SCResponseData> setCustomerResponse = amoCrmCustomerService.setCustomer(setCustomer, projectSettings);
+        Response<SCResponseData> setCustomerResponse = amoCrmCustomerService.setCustomer(setCustomer);
         assertEquals(setCustomerResponse.body().response.customers.add.customers.size(), 1);
 
         SCResponseAddCustomer customer = setCustomerResponse.body().response.customers.add.customers.get(0);
@@ -83,7 +79,7 @@ public class AmoCrmCustomerServiceTest {
         deleteCustomer.request.customers.add = new ArrayList<>();
         deleteCustomer.request.customers.delete = new ArrayList<>();
         deleteCustomer.request.customers.delete.add(customer.id);
-        Response<SCResponseData> deleteCustomerResponse = amoCrmCustomerService.setCustomer(deleteCustomer, projectSettings);
+        Response<SCResponseData> deleteCustomerResponse = amoCrmCustomerService.setCustomer(deleteCustomer);
 
         SCResponseDeleteCustomer deletedCustomer = deleteCustomerResponse.body().response.customers.delete.customers.get(String.valueOf(customer.id));
         assertEquals(deletedCustomer.id, customer.id);

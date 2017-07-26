@@ -6,7 +6,7 @@
     <artifactId>amocrm-client-spring</artifactId>
     <packaging>jar</packaging>
     <name>AmoCRM Client Library For Spring Framework</name>
-    <version>0.0.1</version>
+    <version>0.0.4</version>
 
     <prerequisites>
         <maven>3.1.1</maven>
@@ -16,6 +16,7 @@
         <java-version>1.8</java-version>
         <portlet-api.version>2.0</portlet-api.version>
         <org.springframework-version>4.3.2.RELEASE</org.springframework-version>
+        <org.springboot-version>1.3.7.RELEASE</org.springboot-version>
         <org.aspectj-version>1.8.1</org.aspectj-version>
         <org.slf4j-version>1.7.21</org.slf4j-version>
         <com.retrofit>2.2.0</com.retrofit>
@@ -25,12 +26,17 @@
         <dependency>
             <groupId>com.amocrm</groupId>
             <artifactId>amocrm-client</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${org.springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${org.springboot-version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.retrofit2</groupId>

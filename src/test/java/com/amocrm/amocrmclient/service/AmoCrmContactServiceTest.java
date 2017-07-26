@@ -1,22 +1,21 @@
 package com.amocrm.amocrmclient.service;
 
-import com.amocrm.amocrmclient.entity.contact.set.SCResponse;
-import com.amocrm.amocrmclient.entity.contact.set.SCResponseAdd;
-import com.amocrm.amocrmclient.entity.contact.links.CLResponseData;
-import com.amocrm.amocrmclient.entity.contact.set.SCParam;
-import com.amocrm.amocrmclient.entity.contact.set.SCResponseData;
+import com.amocrm.amocrmclient.contact.entity.set.SCResponseAdd;
+import com.amocrm.amocrmclient.contact.entity.links.CLResponseData;
+import com.amocrm.amocrmclient.contact.entity.set.SCParam;
+import com.amocrm.amocrmclient.contact.entity.set.SCResponseData;
+import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
 import static org.junit.Assert.assertEquals;
@@ -24,11 +23,12 @@ import static org.junit.Assert.assertNotEquals;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "classpath:serviceContext-test.xml")
+@ContextHierarchy({@ContextConfiguration(classes = {
+}, initializers = ConfigFileApplicationContextInitializer.class)})
+@TestPropertySource(locations="classpath:amocrm.properties")
 public class AmoCrmContactServiceTest {
 
-    @Autowired
-    AmoCrmContactService amoCrmContactService;
+    private AmoCrmContactService amoCrmContactService;
 
     @Value("${amocrm.host}")
     private String amoCrmHost;
@@ -39,15 +39,18 @@ public class AmoCrmContactServiceTest {
     @Value("${amocrm.password}")
     private String amoCrmPassword;
 
+
+    @Autowired
+    void setAmoCrmContactService() {
+        AmoCrmClientConfig config = new AmoCrmClientConfig(amoCrmHost, amoCrmUser, amoCrmPassword);
+        amoCrmContactService = new AmoCrmContactService(config);
+    }
+
+
     @Test
     public void testSetAndDeleteContact() throws Exception {
-        Map<String, String> projectSettings = new HashMap<>();
-        projectSettings.put("amoCrmHost", amoCrmHost);
-        projectSettings.put("amoCrmUser", amoCrmUser);
-        projectSettings.put("amoCrmPassword", amoCrmPassword);
-        OkHttpClient httpClient = amoCrmContactService.getOkHttpClient();
         SCParam setContact = amoCrmContactService.createContact("John Doe");
-        Response<SCResponseData> setContactResponse = amoCrmContactService.setContact(setContact, projectSettings);
+        Response<SCResponseData> setContactResponse = amoCrmContactService.setContact(setContact);
         assertEquals(setContactResponse.body().response.contacts.add.size(), 1);
 
     }
@@ -74,18 +77,14 @@ public class AmoCrmContactServiceTest {
     //@Test
     public void testLinks() throws Exception {
         // TODO: Test update also
-        Map<String, String> projectSettings = new HashMap<>();
-        projectSettings.put("amoCrmHost", amoCrmHost);
-        projectSettings.put("amoCrmUser", amoCrmUser);
-        projectSettings.put("amoCrmPassword", amoCrmPassword);
-        OkHttpClient httpClient = amoCrmContactService.getOkHttpClient();
+
         SCParam setContact = amoCrmContactService.createContact("John Doe");
-        Response<SCResponseData> setContactResponse = amoCrmContactService.setContact(setContact, projectSettings);
+        Response<SCResponseData> setContactResponse = amoCrmContactService.setContact(setContact);
         assertEquals(setContactResponse.body().response.contacts.add.size(), 1);
 
         SCResponseAdd contact = setContactResponse.body().response.contacts.add.get(0);
 
-        Response<CLResponseData> listLinksResponse = amoCrmContactService.links(projectSettings);
+        Response<CLResponseData> listLinksResponse = amoCrmContactService.links();
         assertNotEquals(listLinksResponse.body().response.links.size(), 0);
 
     }

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 
-import javax.inject.Inject;
-
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -19,15 +17,7 @@ public class AmoCrmService {
 
     private static final Logger logger = LoggerFactory.getLogger(AmoCrmService.class);
 
-    AmoCrmAuthService authService;
-
-    AmoCrmAccountService amoCrmAccountService;
-
-    @Inject
-    public AmoCrmService(AmoCrmAuthService authService, AmoCrmAccountService amoCrmAccountService) {
-        this.authService = authService;
-        this.amoCrmAccountService = amoCrmAccountService;
-    }
+    public AmoCrmService() {}
 
     public OkHttpClient getOkHttpClient() {
 

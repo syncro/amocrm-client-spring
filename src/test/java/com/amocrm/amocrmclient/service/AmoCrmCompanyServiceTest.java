@@ -1,21 +1,20 @@
 package com.amocrm.amocrmclient.service;
 
-import com.amocrm.amocrmclient.entity.company.list.LCResponseData;
-import com.amocrm.amocrmclient.entity.company.set.SCParam;
-import com.amocrm.amocrmclient.entity.company.set.SCResponseData;
+import com.amocrm.amocrmclient.company.entity.list.LCResponseData;
+import com.amocrm.amocrmclient.company.entity.set.SCParam;
+import com.amocrm.amocrmclient.company.entity.set.SCResponseData;
+import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
 import static org.junit.Assert.assertEquals;
@@ -23,11 +22,12 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "classpath:serviceContext-test.xml")
+@ContextHierarchy({@ContextConfiguration(classes = {
+}, initializers = ConfigFileApplicationContextInitializer.class)})
+@TestPropertySource(locations="classpath:amocrm.properties")
 public class AmoCrmCompanyServiceTest {
 
-    @Autowired
-    AmoCrmCompanyService amoCrmCompanyService;
+    private AmoCrmCompanyService amoCrmCompanyService;
 
     @Value("${amocrm.host}")
     private String amoCrmHost;
@@ -38,19 +38,21 @@ public class AmoCrmCompanyServiceTest {
     @Value("${amocrm.password}")
     private String amoCrmPassword;
 
+    @Autowired
+    void setAmoCrmCompanyService() {
+        AmoCrmClientConfig config = new AmoCrmClientConfig(amoCrmHost, amoCrmUser, amoCrmPassword);
+        amoCrmCompanyService = new AmoCrmCompanyService(config);
+    }
+
     @Test
     public void testCrateAndListCustomers() throws Exception {
-        Map<String, String> projectSettings = new HashMap<>();
-        projectSettings.put("amoCrmHost", amoCrmHost);
-        projectSettings.put("amoCrmUser", amoCrmUser);
-        projectSettings.put("amoCrmPassword", amoCrmPassword);
 
         SCParam setCompany = amoCrmCompanyService.createCompany("Some Company");
 
-        Response<SCResponseData> setCompanyResponse = amoCrmCompanyService.setCompany(setCompany, projectSettings);
+        Response<SCResponseData> setCompanyResponse = amoCrmCompanyService.setCompany(setCompany);
         assertEquals(setCompanyResponse.body().response.contacts.add.size(), 1);
 
-        Response<LCResponseData> listCustomersResponse = amoCrmCompanyService.list(projectSettings);
+        Response<LCResponseData> listCustomersResponse = amoCrmCompanyService.list();
         assertTrue(listCustomersResponse.body().response.contacts.size() > 0);
 
     }
