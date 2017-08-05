@@ -3,7 +3,7 @@ package com.amocrm.amocrmclient.service;
 
 import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 import com.amocrm.amocrmclient.transaction.TransactionClient;
-import com.amocrm.amocrmclient.transaction.TransactionClientBuilder;
+import com.amocrm.amocrmclient.transaction.impl.TransactionClientBuilder;
 import com.amocrm.amocrmclient.transaction.entity.set.STParameter;
 import com.amocrm.amocrmclient.transaction.entity.set.STResponseData;
 

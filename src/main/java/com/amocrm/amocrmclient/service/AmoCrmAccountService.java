@@ -2,8 +2,8 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.account.AccountClient;
-import com.amocrm.amocrmclient.account.AccountClientBuilder;
 import com.amocrm.amocrmclient.account.entity.current.ACData;
+import com.amocrm.amocrmclient.account.impl.AccountClientBuilder;
 import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 
 import org.slf4j.Logger;

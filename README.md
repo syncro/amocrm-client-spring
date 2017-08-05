@@ -10,7 +10,7 @@ Maven:
 <dependency>
   <groupId>com.amocrm</groupId>
   <artifactId>amocrm-client-spring</artifactId>
-  <version>0.0.4</version>
+  <version>0.0.5</version>
   <type>pom</type>
 </dependency>
 ```
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.amocrm:amocrm-client-spring:0.0.4'
+    compile 'com.amocrm:amocrm-client-spring:0.0.5'
 }
 ```
 

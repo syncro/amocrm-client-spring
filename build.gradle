@@ -1,3 +1,8 @@
+
+group = 'com.amocrm'
+version = '0.0.5'
+
+
 buildscript {
     repositories {
         mavenCentral()
@@ -13,7 +18,7 @@ ext {
     bintrayRepo = 'amocrm-client'
     bintrayName = 'amocrm-client-spring'
 
-    publishedGroupId = 'com.amocrm'
+    publishedGroupId = group
     libraryName = 'amocrm-client-spring'
     artifact = 'amocrm-client-spring'
 
@@ -22,7 +27,7 @@ ext {
     siteUrl = 'https://github.com/syncro/amocrm-client-spring'
     gitUrl = 'https://github.com/syncro/amocrm-client-spring.git'
 
-    libraryVersion = '0.0.4'
+    libraryVersion = version
 
     developerId = 'syncro'
     developerName = 'Aleksey Oblozhko'
@@ -39,7 +44,7 @@ apply plugin: 'idea'
 
 jar {
     baseName = 'amocrm-client-spring'
-    version =  '0.0.4'
+    version =  version
 }
 
 repositories {
@@ -52,9 +57,9 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile("com.amocrm:amocrm-client:0.0.4")
+    compile("com.amocrm:amocrm-client:0.0.5")
     compile("org.springframework:spring-context:4.3.2.RELEASE")
-    compile("org.springframework.boot:spring-boot.1.3.7.RELEASE")
+    compile group: 'org.springframework.boot', name: 'spring-boot', version: '1.3.7.RELEASE'
     compile("com.squareup.retrofit2:retrofit:2.2.0")
     compile("com.squareup.retrofit2:adapter-rxjava2:2.2.0")
     compile("com.squareup.retrofit2:converter-gson:2.2.0")
@@ -69,13 +74,12 @@ dependencies {
 
 apply plugin: 'maven'
 
-group = 'com.amocrm'
 
 uploadArchives {
     repositories.mavenDeployer {
         pom.groupId = group
         pom.artifactId = 'amocrm-client'
-        pom.version = '0.0.4'
+        pom.version = version
         // Add other pom properties here if you want (developer details / licenses)
         //repository(url: "file:///someLocation/")
     }

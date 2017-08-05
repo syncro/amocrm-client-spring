@@ -2,7 +2,7 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.company.CompanyClient;
-import com.amocrm.amocrmclient.company.CompanyClientBuilder;
+import com.amocrm.amocrmclient.company.impl.CompanyClientBuilder;
 import com.amocrm.amocrmclient.company.entity.list.LCResponseData;
 import com.amocrm.amocrmclient.company.entity.set.SCParam;
 import com.amocrm.amocrmclient.company.entity.set.SCResponseData;

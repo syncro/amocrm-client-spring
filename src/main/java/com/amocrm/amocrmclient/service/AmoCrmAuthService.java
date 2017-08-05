@@ -2,7 +2,7 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.auth.AuthClient;
-import com.amocrm.amocrmclient.auth.AuthClientBuilder;
+import com.amocrm.amocrmclient.auth.impl.AuthClientBuilder;
 import com.amocrm.amocrmclient.entity.AuthResponse;
 import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 

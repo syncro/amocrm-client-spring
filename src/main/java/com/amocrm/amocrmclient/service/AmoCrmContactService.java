@@ -2,7 +2,7 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.contact.ContactClient;
-import com.amocrm.amocrmclient.contact.ContactClientBuilder;
+import com.amocrm.amocrmclient.contact.impl.ContactClientBuilder;
 import com.amocrm.amocrmclient.contact.entity.links.CLResponseData;
 import com.amocrm.amocrmclient.contact.entity.list.LCResponseData;
 import com.amocrm.amocrmclient.contact.entity.set.SCResponseData;

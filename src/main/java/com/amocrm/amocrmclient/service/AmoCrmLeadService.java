@@ -2,7 +2,7 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.lead.LeadClient;
-import com.amocrm.amocrmclient.lead.LeadClientBuilder;
+import com.amocrm.amocrmclient.lead.impl.LeadClientBuilder;
 import com.amocrm.amocrmclient.lead.entity.set.SLResponseData;
 import com.amocrm.amocrmclient.lead.entity.list.LLResponseData;
 import com.amocrm.amocrmclient.lead.entity.set.SLParam;

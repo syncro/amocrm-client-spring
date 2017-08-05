@@ -3,7 +3,7 @@ package com.amocrm.amocrmclient.service;
 
 import com.amocrm.amocrmclient.service.configuration.AmoCrmClientConfig;
 import com.amocrm.amocrmclient.task.TaskClient;
-import com.amocrm.amocrmclient.task.TaskClientBuilder;
+import com.amocrm.amocrmclient.task.impl.TaskClientBuilder;
 import com.amocrm.amocrmclient.task.entity.set.STParam;
 import com.amocrm.amocrmclient.task.entity.set.STResponse;
 

@@ -2,7 +2,7 @@ package com.amocrm.amocrmclient.service;
 
 
 import com.amocrm.amocrmclient.customer.CustomerClient;
-import com.amocrm.amocrmclient.customer.CustomerClientBuilder;
+import com.amocrm.amocrmclient.customer.impl.CustomerClientBuilder;
 
 import com.amocrm.amocrmclient.customer.entity.list.LCFilter;
 import com.amocrm.amocrmclient.customer.entity.list.LCResponseData;
